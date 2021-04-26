@@ -160,7 +160,7 @@ def get_balance(account):
     if balance is not None:
         res = {
             'message': 'Successfully fetched balance.',
-            'funds': blockchain.get_balance()
+            'funds': blockchain.get_balance(account)
         }
         return jsonify(res), 201
     else:
