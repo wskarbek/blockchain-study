@@ -150,9 +150,13 @@ def resolve_conflicts():
     return jsonify(res), 200
 
 
-@app.route('/balance', methods=['GET'])
-def get_balance():
-    balance = blockchain.get_balance()
+@app.route('/balance/<account>', methods=['GET'])
+def get_balance(account):
+    print(account)
+    # if account is not None:
+    balance = blockchain.get_balance(account)
+    # else:
+    #     balance = blockchain.get_balance()
     if balance is not None:
         res = {
             'message': 'Successfully fetched balance.',

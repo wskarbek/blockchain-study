@@ -8,7 +8,7 @@ from wallet import Wallet
 from util.verification import Verification
 from util.hash_tools import hash_block
 
-MINING_REWARD = 10
+MINING_REWARD = 1000
 
 
 class Blockchain:
@@ -104,13 +104,15 @@ class Blockchain:
             self.chain = [genesis_block]
             self.__open_transactions = []
 
-    def get_balance(self, sender=None):
+    def get_balance(self, sender):
+        print(sender)
         if sender is None:
             if self.user is None:
                 return None
             participant = self.user
         else:
             participant = sender
+        print(participant)
         tx_sender = [[tx.amount for tx in block.txs if tx.sender == participant] for block in self.chain]
         open_tx_sender = [tx.amount for tx in self.__open_transactions if tx.sender == participant]
         tx_sender.append(open_tx_sender)
