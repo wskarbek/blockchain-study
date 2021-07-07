@@ -1,5 +1,5 @@
-from hash_tools import hash_string, hash_block
-from wallet import Wallet
+from util.hash_tools import hash_string, hash_block
+from puchchain.wallet import Wallet
 
 
 class Verification:

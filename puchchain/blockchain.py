@@ -1,9 +1,10 @@
 import json
 import requests
 
-from block import Block
-from transaction import Transaction
-from wallet import Wallet
+from puchchain.block import Block
+from puchchain.stake_transaction import StakeTransaction
+from puchchain.transaction import Transaction
+from puchchain.wallet import Wallet
 
 from util.verification import Verification
 from util.hash_tools import hash_block
@@ -13,12 +14,13 @@ MINING_REWARD = 1000
 
 class Blockchain:
     def __init__(self, user, node_id):
-        genesis_block = Block(0, 'GENESIS', [], 100, 0)
-        self.chain = [genesis_block]
-        self.__open_transactions = []
+        self.genesis_block = Block(0, 'GENESIS', [], 100, 0)
         self.verifier = Verification()
-        self.user = user
+        self.chain = [self.genesis_block]
+        self.__open_transactions = []
         self.__peer_nodes = set()
+        self.stakers = set()
+        self.user = user
         self.node_id = node_id
         self.resolve_conflicts = False
         self.load_data()
@@ -49,8 +51,13 @@ class Blockchain:
         try:
             with open('puch-{}.blockchain'.format(self.node_id), mode='w') as f:
                 f.write(json.dumps([block.__dict__ for block in [
-                    Block(block_el.index, block_el.previous_hash, [tx.__dict__ for tx in block_el.txs], block_el.proof,
-                          block_el.timestamp) for block_el in self.chain]]))
+                    Block(block_el.index,
+                          block_el.previous_hash,
+                          [tx.__dict__ for tx in block_el.txs],
+                          [stake_txs.__dict__ for stake_txs in block_el.stake_txs],
+                          block_el.proof,
+                          block_el.timestamp
+                          ) for block_el in self.chain]]))
                 f.write('\n')
                 f.write(json.dumps([tx.__dict__ for tx in self.__open_transactions]))
                 f.write('\n')
@@ -75,20 +82,26 @@ class Blockchain:
                 self.chain = json.loads(file_content[0][:-1])
                 updated_blockchain = []
                 for block in self.chain:
-                    converted_tx = [Transaction(
+                    converted_txs = [Transaction(
                         tx['sender'],
                         tx['recipient'],
                         tx['signature'],
                         tx['amount']
                     ) for tx in block['txs']]
+                    converted_stake_txs = [StakeTransaction(
+                        tx['sender'],
+                        tx['time'],
+                        tx['signature'],
+                        tx['amount']
+                    ) for tx in block['stake_txs']]
                     updated_block = Block(
                         block['index'],
                         block['previous_hash'],
-                        converted_tx,
+                        converted_txs,
+                        converted_stake_txs,
                         block['proof'],
                         block['timestamp']
                     )
-
                     updated_blockchain.append(updated_block)
                 self.chain = updated_blockchain
                 __open_transactions = json.loads(file_content[1][:-1])
@@ -100,19 +113,21 @@ class Blockchain:
                 peer_nodes = json.loads(file_content[2])
                 self.__peer_nodes = set(peer_nodes)
         except IOError:
-            genesis_block = Block(0, 'GENESIS', [], 100, 0)
-            self.chain = [genesis_block]
+            self.chain = [self.genesis_block]
             self.__open_transactions = []
 
     def get_balance(self, sender):
-        print(sender)
+        """Gets balance of a user and returns it as float. Total balance is reduced staked transactions, but finished stakes are ignored.
+
+        Keyword Args:
+            sender -- public key of a user we want to get balance for
+        """
         if sender is None:
             if self.user is None:
                 return None
             participant = self.user
         else:
             participant = sender
-        print(participant)
         tx_sender = [[tx.amount for tx in block.txs if tx.sender == participant] for block in self.chain]
         open_tx_sender = [tx.amount for tx in self.__open_transactions if tx.sender == participant]
         tx_sender.append(open_tx_sender)
@@ -129,8 +144,6 @@ class Blockchain:
         return amount_received - amount_sent
 
     def add_transaction(self, sender, recipient, signature, amount, is_receiving=False):
-        # if self.user is None:
-        #     return False
         transaction = Transaction(sender, recipient, signature, amount)
         if Verification.verify_tx(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
@@ -205,6 +218,33 @@ class Blockchain:
         while not self.verifier.valid_proof(self.__open_transactions, last_hash, proof):
             proof += 1
         return proof
+
+
+    # def choose_leader(self):
+    #     pass
+    #
+    #
+    # def calculate_total_stake(self):
+    #     total = 0
+    #     # for staker in self.stakers:
+    #
+    #     pass
+    #
+    #
+    # def calculate_personal_stake(self, staker):
+    #     tx_sender = [
+    #             [tx.amount for tx in block.txs if tx.sender == staker and ]
+    #             for block in self.chain]
+    #     # current_time =
+    #     for block in self.chain:
+    #         for tx in block.stake_txs:
+    #             if tx.sender == staker and tx
+    #     pass
+    #
+    #
+    # def proof_of_stake(self):
+    #     last_block = self.chain[-1]
+    #     last_hash = hash_block(last_block)
 
     def mine_block(self):
         if self.user is None:

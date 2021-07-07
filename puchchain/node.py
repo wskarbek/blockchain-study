@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-from wallet import Wallet
-from blockchain import Blockchain
+from puchchain.wallet import Wallet
+from puchchain.blockchain import Blockchain
 
 app = Flask(__name__)
 CORS(app)
 
 
+# API Stuff
 @app.route('/wallet', methods=['POST'])
 def create_keys():
     wallet.create_keys()
@@ -45,28 +46,42 @@ def load_keys():
         return jsonify(res), 500
 
 
-@app.route('/', methods=['GET'])
-def get_ui():
-    return send_from_directory('ui', 'node.html')
-
-
-@app.route('/transactions', methods=['GET'])
-def get_open_tx():
-    txs = blockchain.get_open_txs()
-    dict_transactions = [tx.__dict__ for tx in txs]
-    return jsonify(dict_transactions), 200
-    res = {
-        'message': 'Fetched transactions successfully.',
-        'ttransactions': dict_transactions
-    }
-
-
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain = [block.__dict__.copy() for block in blockchain.chain]
     for chain_block in chain:
         chain_block['txs'] = [tx.__dict__ for tx in chain_block['txs']]
     return jsonify(chain), 200
+
+
+# To be removed, old TX sending
+# @app.route('/transactions', methods=['GET'])
+# def get_open_tx():
+#     txs = blockchain.get_open_txs()
+#     dict_transactions = [tx.__dict__ for tx in txs]
+#     return jsonify(dict_transactions), 200
+#     res = {
+#         'message': 'Fetched transactions successfully.',
+#         'ttransactions': dict_transactions
+#     }
+
+
+# Wallet related stuff
+@app.route('/balance/<account>', methods=['GET'])
+def get_balance(account):
+    balance = blockchain.get_balance(account)
+    if balance is not None:
+        res = {
+            'message': 'Successfully fetched balance.',
+            'funds': blockchain.get_balance()
+        }
+        return jsonify(res), 201
+    else:
+        res = {
+            'message': 'Loading balance failed.',
+            'wallet': wallet.public_key
+        }
+        return jsonify(res), 500
 
 
 @app.route('/transaction', methods=['POST'])
@@ -111,6 +126,7 @@ def add_transaction():
         return jsonify(res), 500
 
 
+# TODO: Replace with PoS
 @app.route('/mine', methods=['POST'])
 def mine():
     if blockchain.resolve_conflicts:
@@ -136,6 +152,7 @@ def mine():
         return jsonify(res), 500
 
 
+# Consensus related stuff
 @app.route('/resolve-conflicts', methods=['POST'])
 def resolve_conflicts():
     replaced = blockchain.resolve()
@@ -148,27 +165,6 @@ def resolve_conflicts():
             'message': 'Chain up to date'
         }
     return jsonify(res), 200
-
-
-@app.route('/balance/<account>', methods=['GET'])
-def get_balance(account):
-    print(account)
-    # if account is not None:
-    balance = blockchain.get_balance(account)
-    # else:
-    #     balance = blockchain.get_balance()
-    if balance is not None:
-        res = {
-            'message': 'Successfully fetched balance.',
-            'funds': blockchain.get_balance()
-        }
-        return jsonify(res), 201
-    else:
-        res = {
-            'message': 'Loading balance failed.',
-            'wallet': wallet.public_key
-        }
-        return jsonify(res), 500
 
 
 @app.route('/broadcast-transaction', methods=['POST'])
@@ -243,6 +239,7 @@ def broadcast_block():
         return jsonify(res), 409
 
 
+# Node related stuff
 @app.route('/node', methods=['POST'])
 def add_node():
     values = request.get_json()
@@ -289,7 +286,7 @@ def get_nodes():
     return jsonify(res), 200
 
 
-if __name__ == '__main__':
+def run_server():
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
@@ -299,3 +296,4 @@ if __name__ == '__main__':
     wallet = Wallet(port)
     blockchain = Blockchain(wallet.public_key, port)
     app.run(host="0.0.0.0", port=port)
+
