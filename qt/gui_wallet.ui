@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>347</width>
+    <height>209</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Puch Wallet</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Balance:</string>
+      </property>
+      <property name="buddy">
+       <cstring>lineEditBalance</cstring>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEditBalance">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Public key:</string>
+      </property>
+      <property name="buddy">
+       <cstring>lineEditPublicKey</cstring>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEditPublicKey">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Send TX</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="text">
+       <string>Get TX / Reload blockchain</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>347</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuWallet">
+    <property name="title">
+     <string>Wallet</string>
+    </property>
+    <addaction name="actionCreate_wallet"/>
+    <addaction name="actionLoad_wallet"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionAbout_Puch"/>
+   </widget>
+   <widget class="QMenu" name="menuStacking">
+    <property name="title">
+     <string>Staking</string>
+    </property>
+    <addaction name="actionNot_yet"/>
+   </widget>
+   <addaction name="menuWallet"/>
+   <addaction name="menuStacking"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCreate_wallet">
+   <property name="text">
+    <string>Create wallet</string>
+   </property>
+  </action>
+  <action name="actionLoad_wallet">
+   <property name="text">
+    <string>Load wallet</string>
+   </property>
+  </action>
+  <action name="actionChange_node">
+   <property name="text">
+    <string>Change node</string>
+   </property>
+  </action>
+  <action name="actionAbout_Puch">
+   <property name="text">
+    <string>About Puch</string>
+   </property>
+  </action>
+  <action name="actionNot_yet">
+   <property name="text">
+    <string>Not yet :)</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>lineEditBalance</tabstop>
+  <tabstop>lineEditPublicKey</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_2</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
