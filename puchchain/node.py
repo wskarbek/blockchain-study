@@ -167,6 +167,30 @@ def resolve_conflicts():
     return jsonify(res), 200
 
 
+<<<<<<< HEAD:puchchain/node.py
+=======
+@app.route('/balance/<account>', methods=['GET'])
+def get_balance(account):
+    print(account)
+    # if account is not None:
+    balance = blockchain.get_balance(account)
+    # else:
+    #     balance = blockchain.get_balance()
+    if balance is not None:
+        res = {
+            'message': 'Successfully fetched balance.',
+            'funds': blockchain.get_balance(account)
+        }
+        return jsonify(res), 201
+    else:
+        res = {
+            'message': 'Loading balance failed.',
+            'wallet': wallet.public_key
+        }
+        return jsonify(res), 500
+
+
+>>>>>>> 50e70782ce50f1e7002f493035bf40bd4da847a0:node.py
 @app.route('/broadcast-transaction', methods=['POST'])
 def broadcast_transaction():
     values = request.get_json()
